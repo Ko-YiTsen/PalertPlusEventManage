@@ -18,7 +18,7 @@ collect eq events list, save to scweb_cwb_scraper.csv, cwb_scraper.csv
 **ftpEvent**  
 download files from ftp serve
 
-**mFilelist.py**  
+**mFileList.py**  
 Creat a file list for each event
 
 **waveform.py**  
