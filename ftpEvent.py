@@ -7,7 +7,6 @@ import time
 # 外部函式
 import waveform
 import mFileList
-import ftpInfo
 
 path = os.getcwd()
 # ftp改參數
