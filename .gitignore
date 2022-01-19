@@ -11,6 +11,7 @@ ftpInfo
 templates/map.html
 scrapLog.log
 webLog.log
+move.py
 
 # C extensions
 *.so
