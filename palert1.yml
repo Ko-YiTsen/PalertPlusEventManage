@@ -1,0 +1,13 @@
+name: palert
+channels:
+  - defaults
+dependencies:
+  - python=3.8
+  - selenium
+  - requests
+  - flask
+  - beautifulsoup4
+  - pandas
+  - obspy
+  - colorama
+prefix: C:\Users\caspe\anaconda3\envs\palert

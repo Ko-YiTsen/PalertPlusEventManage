@@ -3,6 +3,15 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+#import info
+StationList.json
+ftpInfo
+
+#file which changes everytime
+templates/map.html
+scrapLog.log
+webLog.log
+
 # C extensions
 *.so
 

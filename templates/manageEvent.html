@@ -1,0 +1,384 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Manage event {{event.ID}}
+{% endblock %}
+
+{% block content %}
+<div id="sitebody">
+    <div id="header">
+        <h2> {{event.Time}} 規模{{event.Mag}} {{event.No}}</h2>
+        <h3>#{{event.ID}}</h3>
+        <hr>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col" id="sidebar_left">
+                <!-- 地震報告圖網址 之後要改成變數 712x920 -->
+                <img src={{ url_for('static', filename=event.ID+'/'+event.ID) }}.gif class="img-fluid" alt="地震報告地圖"
+                    title="地震報告地圖" loading="lazy">
+            </div>
+            　
+            <div class="col" id="content">
+                <table class="table table-dark table-bordered caption-top ">
+                    <caption>地震詳細資訊</caption>
+                    <tr>
+                        <th align="center">編號</th>
+                        <td>{{event.No}}</td>
+                    </tr>
+                    <tr>
+                        <th align="center">發震時間</th>
+                        <td>{{event.Time}}</td>
+                    </tr>
+                    <tr>
+                        <th align="center">震央位置</th>
+                        <td>北緯 {{event.Lat}} ° 東經 {{event.Long}} °</td>
+                    </tr>
+                    <tr>
+                        <th align="center">地震深度</th>
+                        <td>{{event.Dept}} 公里</td>
+                    </tr>
+                    <tr>
+                        <th align="center">芮氏規模</th>
+                        <td>{{event.Mag}}</td>
+                    </tr>
+                    <tr>
+                        <th align="center">最大震度</th>
+                        <td>{{event.Intensity}}</td>
+                    </tr>
+                    <tr>
+                        <th align="center">相對位置</th>
+                        <td>{{event.Loc}}</td>
+                    </tr>
+                    {% if event.No != 'Local' %}
+                    <tr>
+                        <th align="center">震源機制CMT</th>
+                        <td><a href=" https://scweb.cwb.gov.tw/zh-tw/earthquake/cmt/{{event.OriginID}}"
+                                target="_blank">link of CMT</a>
+                        </td>
+                    </tr>
+                    {% endif %}
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    　<div id="footer">
+        <div style="width:900px;height:20px;margin:0 auto;">
+            <table class="table table-dark table-responsive table-bordered caption-top" id="f_list">
+                <caption>waveform list</caption>
+                <tbody>
+                    <tr>
+                        <th width="20">select</th>
+                        <th>機器編號</th>
+                        <th>波形檔名</th>
+                        <th>檔案大小(KB)</th>
+                        <th>PGA(gal)</th>
+                        <th width="200">波形預覽</th>
+                        <th>move to</th>
+                    </tr>
+                    {% for info in infos %}
+                    {% if info.status == '1' %}
+                    <tr>
+                        <td><input type="checkbox" name='select'></td>
+                        <td>{{info.station}}</td>
+                        <td>{{info.name}}</td>
+                        <td>{{info.size/1000}}</td>
+                        <td> </td>
+                        <td><img src={{ url_for('static', filename=info.imgPath) }} class="img-fluid" alt={{info.name}}
+                                loading="lazy">
+                        </td>
+                        <td>
+                            <form action="{{url_for('delete_file',name=info.name,eqID=event.ID)}}" method="post">
+                                <input class="btn btn-danger" type="submit" value="hide">
+                            </form>
+                            <!-- <button type="button" class="btn btn-danger" id="btndelete">Delete</button> -->
+                        </td>
+                        <!-- <td>
+                            <select class="form-select">
+                                {% for aevent in eventList %}...
+                                {% if aevent != event.ID %}
+                                <option>{{aevent}}</option>
+                                {% else %}
+
+                                <option selected="selected">{{aevent}}</option>
+                                {% endif %}
+                                {% endfor %}
+
+                            </select>
+                        </td> -->
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+
+                    <tr class="table-secondary">
+                        <td colspan="7">hide</td>
+                    </tr>
+
+                    {% for info in infos %}
+                    {% if info.status == '0' %}
+                    <tr class="table-active">
+                        <td><input type="checkbox" name='select'></td>
+                        <td>{{info.station}}</td>
+                        <td>{{info.name}}</td>
+                        <td>{{info.size/1000}}</td>
+                        <td> </td>
+                        <td><img src={{ url_for('static', filename=info.imgPath) }} class="img-fluid" alt={{info.name}}
+                                loading="lazy">
+                        </td>
+                        <td>
+                            <form action="{{url_for('add_file',name=info.name,eqID=event.ID)}}" method="post">
+                                <input class="btn btn-success" type="submit" value="add">
+                            </form>
+                        </td>
+                        <!-- <td>
+                            <select class="form-select">
+                                {% for aevent in eventList %}...
+                                {% if aevent != event.ID %}
+                                <option>{{aevent}}</option>
+                                {% else %}
+
+                                <option selected="selected">{{aevent}}</option>
+                                {% endif %}
+                                {% endfor %}
+
+                            </select>
+                        </td> -->
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+
+                </tbody>
+            </table>
+            <button type="button" class="btn btn-primary">Submit</button>
+            <button type="button" class="btn btn-primary" id="dl">Download</button>
+            <!-- Button trigger modal -->
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" id="show_modal">
+                reFTP {{event.ID}}
+            </button>
+
+        </div>
+
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content bg-secondary" id="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">reFTP {{event.ID}}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="body_reFTP">
+                <div class="container" id="modal_body_container">
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-3">
+                                <label for="startTime" class="form-label">start time(sec)</label>
+                                <input type="number" class="form-control" id="startTime" value="-20">
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="mb-3">
+                                <label for="endTime" class="form-label">end time(sec)</label>
+                                <input type="number" class="form-control" id="endTime" value="90">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer" id="btn_gp_reftp">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btn_reFTP">reFTP</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block script %}
+<script>
+
+    (function () {
+
+        $('button[id="dl"]').on('click', function () {
+
+            var node = document.getElementsByName("select");
+            var tab = document.getElementById("f_list");
+            var f_list = new Array()
+
+            for (var i = 0; i < node.length; i++) {
+                if (node[i].checked) {
+                    f_list.push(tab.rows[i + 1].cells[2].innerHTML)
+                }
+            }
+            var data_f = {
+
+                "fnames": JSON.stringify(f_list)
+
+            };
+            let myParams = { "fnames": JSON.stringify(f_list) };
+            let paramFile = new URLSearchParams(myParams).toString();
+            let dlLink = new URL(window.location.href.concat('/download'))
+            dlLink.search = paramFile
+
+            console.log(dlLink);
+
+            alert("Download selected files " + JSON.stringify(f_list))
+            window.open(dlLink.href)
+
+            // $.ajax({
+
+            //     type: "post",
+
+            //     async:false,
+
+            //     url: "/download",
+
+            //     data: data_f,
+
+            //     dataType: "json",
+            //     success:function(callback){
+            //         var temp = 'file-> ' + callback;
+            //         $(doc).text(temp)
+            //     }
+
+            // });
+        });
+
+    })();
+
+</script>
+
+<script>
+
+    (function () {
+
+        $('button[id="btn_reFTP"]').on('click', function () {
+
+            var start = document.getElementById("startTime").value;
+            var end = document.getElementById("endTime").value;
+            var tz = start + '_' + end
+            let link = new URL(window.location.href.concat('/reftp/', tz))
+
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>ftp ing...'
+
+            console.log(link.href)
+            document.getElementById("body_reFTP").innerHTML = '<iframe id="modal-iframe" src=' + link + ' onload="onMyFrameLoad(this)"  frameborder="0" backgrond="black"></iframe>';
+
+
+        });
+
+    })();
+
+</script>
+
+<script>
+
+    (function () {
+
+        $('button[id="show_modal"]').on('click', function () {
+            $('.modal-backdrop')[0].remove()
+        });
+
+    })();
+
+</script>
+
+<script>
+    function pageReLoad() {
+        window.location.reload();
+    };
+</script>
+<script>
+    function onMyFrameLoad() {
+      document.getElementById("btn_reFTP").innerHTML = 'Done';
+      document.getElementById("btn_gp_reftp").innerHTML = '<button type="button" class="btn btn-warning" onClick="pageReLoad()">reload !!</button>'+document.getElementById("btn_gp_reftp").innerHTML
+    };
+</script>
+
+{% endblock %}
+
+
+{% block style %}
+    <style>
+        .modal-body {
+        height: 100%;
+        width: 100%;
+        display: table-row;
+        }
+
+        #modal-content {
+        height: 100%;
+        width: 100%;
+        display: table;
+        }
+        #modal_body_container{
+        height: 100%;
+        width: 100%;
+        
+        }
+
+        #modal-iframe {
+        height: 100%;
+        width: 100%;
+        background: #000000;
+        }
+    </style>
+    
+<!-- <style type="text/css">
+    #sitebody {
+        width: 1000px;
+        margin: 0 auto;
+        font-size: 100%;
+    }
+
+    #header {
+        background-color: #ffffff;
+        height: 100px;
+        text-align: center;
+        
+    }
+
+    #sidebar_left {
+        background-color: #ffffff;
+        width: 400px;
+        
+        text-align: center;
+        line-height: 400px;
+        float: left;
+    }
+
+    #sidebar_right {
+        background-color: #ffffff;
+        width: 120px;
+        height: 400px;
+        text-align: center;
+        line-height: 400px;
+        float: right;
+    }
+
+    #content {
+        margin-left: 150px;
+        margin-right: 150px;
+        height: 400px;
+        background-color: #ffffff;
+        
+        line-height: 50px;
+    }
+
+    #footer {
+        clear: both;
+        background-color: #ffffff;
+        height: 80px;
+        text-align: center;
+        line-height: 20px;
+    }
+</style> -->
+
+{% endblock %}
