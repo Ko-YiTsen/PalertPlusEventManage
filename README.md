@@ -18,6 +18,9 @@ collect eq events list, save to scweb_cwb_scraper.csv, cwb_scraper.csv
 **ftpEvent**  
 download files from ftp serve
 
+**mFilelist.py**  
+Creat a file list for each event
+
 **waveform.py**  
 plot daigram from .mseed file
 
