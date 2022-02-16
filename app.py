@@ -385,7 +385,7 @@ def download_file(eqID):
         memory_file = BytesIO()
         with zipfile.ZipFile(memory_file, "w", zipfile.ZIP_DEFLATED) as zf:
             for _file in fname_list:
-                with open(os.path.join(dirpath, _file), 'rb') as fp:
+                with open(os.path.join(dirpath,'allFile', _file), 'rb') as fp:
                     zf.writestr(_file, fp.read())
                 print(_file+' add to zip')
         memory_file.seek(0)
