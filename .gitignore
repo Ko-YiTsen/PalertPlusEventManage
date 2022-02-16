@@ -3,9 +3,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-#import info
-ftpInfo
-
 #file which changes everytime
 templates/map.html
 scrapLog.log
